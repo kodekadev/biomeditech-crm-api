@@ -12,7 +12,9 @@ export const createApp = () => {
   app.use(helmet());
   const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => o.trim());
   app.use(cors({ origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    if (/\.vercel\.app$/.test(origin)) return cb(null, true);
     cb(new Error(`CORS blocked: ${origin}`));
   }}));
   app.use(express.json({ limit: "1mb" }));
