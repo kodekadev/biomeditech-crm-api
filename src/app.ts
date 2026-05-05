@@ -2,6 +2,8 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import { env } from "./config/env.js";
+import { requireAuth } from "./middleware/auth.js";
+import { authRouter } from "./routes/auth.routes.js";
 import { dashboardRouter } from "./routes/dashboard.routes.js";
 import { resourceRouter } from "./routes/resource.routes.js";
 import { errorHandler, notFoundHandler } from "./http/errors.js";
@@ -20,15 +22,12 @@ export const createApp = () => {
   app.use(express.json({ limit: "1mb" }));
 
   app.get("/health", (_req, res) => {
-    res.json({
-      ok: true,
-      service: "biomeditech-crm-api",
-      environment: env.NODE_ENV
-    });
+    res.json({ ok: true, service: "biomeditech-crm-api", environment: env.NODE_ENV });
   });
 
-  app.use("/api/dashboard", dashboardRouter);
-  app.use("/api", resourceRouter);
+  app.use("/api/auth", authRouter);
+  app.use("/api/dashboard", requireAuth, dashboardRouter);
+  app.use("/api", requireAuth, resourceRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
