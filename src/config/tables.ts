@@ -2,6 +2,8 @@ export type ResourceName =
   | "leads"
   | "clientes"
   | "productos"
+  | "catalogo"
+  | "plantillas"
   | "cotizaciones"
   | "servicios-cotizacion"
   | "comunicaciones"
@@ -77,6 +79,37 @@ export const tables: Record<ResourceName, TableConfig> = {
     searchable: ["id", "rut", "nombre_empresa", "contacto_nombre", "email", "telefono", "ciudad"],
     orderBy: "creado_en",
     hasUpdatedAt: true
+  },
+  catalogo: {
+    resource: "catalogo",
+    table: "catalogo_servicios",
+    idPrefix: "CAT",
+    fields: [
+      ...common,
+      "codigo",
+      "categoria",
+      "servicio",
+      "equipo",
+      "unidad",
+      "precio_neto",
+      "grupo",
+      "texto_base_key",
+      "activo"
+    ],
+    required: ["codigo", "categoria"],
+    filters: ["categoria", "grupo", "activo", "texto_base_key"],
+    searchable: ["codigo", "servicio", "equipo", "categoria", "grupo"],
+    orderBy: "codigo"
+  },
+  plantillas: {
+    resource: "plantillas",
+    table: "plantillas_descripcion",
+    idPrefix: "PLT",
+    fields: [...common, "codigo", "descripcion_larga"],
+    required: ["codigo", "descripcion_larga"],
+    filters: ["codigo"],
+    searchable: ["codigo", "descripcion_larga"],
+    orderBy: "codigo"
   },
   productos: {
     resource: "productos",
@@ -158,6 +191,7 @@ export const tables: Record<ResourceName, TableConfig> = {
       "producto_id",
       "linea_numero",
       "descripcion",
+      "descripcion_larga",
       "tipo_servicio",
       "precio_unitario",
       "cantidad",
