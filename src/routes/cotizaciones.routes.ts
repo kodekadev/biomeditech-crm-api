@@ -3,6 +3,8 @@ import { bigquery, tableRef } from "../bigquery/client.js";
 import { asyncHandler, HttpError } from "../http/errors.js";
 import { nowIso, partitionDate } from "../utils/date.js";
 import { createId } from "../utils/ids.js";
+import { generatePdf } from "../utils/pdfGenerator.js";
+import { uploadPdf } from "../utils/storage.js";
 
 export const cotizacionesRouter = Router();
 
@@ -186,7 +188,45 @@ cotizacionesRouter.post(
       insertedItems.push(itemRecord);
     }
 
-    res.status(201).json({ data: { ...cotRecord, items: insertedItems } });
+    // Generate and upload PDF asynchronously — don't block the response
+    let pdfUrl: string | undefined;
+    try {
+      const [[clienteRow]] = await bigquery.query({
+        query: `SELECT nombre_empresa, rut, contacto_nombre, telefono, direccion FROM ${tableRef("clientes")} WHERE id = @id LIMIT 1`,
+        params: { id: body.cliente_id },
+      });
+      const cliente = clienteRow
+        ? { nombre: String(clienteRow.nombre_empresa ?? ""), rut: String(clienteRow.rut ?? ""), contacto: String(clienteRow.contacto_nombre ?? ""), telefono: String(clienteRow.telefono ?? ""), direccion: String(clienteRow.direccion ?? "") }
+        : { nombre: body.cliente_id };
+
+      const pdfItems = (insertedItems as Array<{
+        linea_numero: number; descripcion: string; descripcion_larga: string;
+        precio_unitario: number; cantidad: number; descuento_pct: number; subtotal: number;
+      }>).map((it) => ({
+        linea_numero: it.linea_numero,
+        descripcion: it.descripcion,
+        descripcion_larga: it.descripcion_larga,
+        precio_unitario: it.precio_unitario,
+        cantidad: it.cantidad,
+        descuento_pct: it.descuento_pct,
+        subtotal: it.subtotal,
+      }));
+
+      const pdfBuffer = await generatePdf(
+        { numero, forma_pago: cotRecord.forma_pago, validez_dias: cotRecord.validez_dias, notas_cliente: cotRecord.notas_cliente, subtotal_neto: subtotalNeto, iva, total_con_iva: total, emitida_en: now, items: pdfItems },
+        cliente,
+      );
+      pdfUrl = await uploadPdf(`${numero}.pdf`, pdfBuffer);
+
+      await bigquery.query({
+        query: `UPDATE ${tableRef("cotizaciones")} SET pdf_url = @pdf_url WHERE id = @id`,
+        params: { pdf_url: pdfUrl, id: cotId },
+      });
+    } catch (pdfErr) {
+      console.error("PDF generation failed (non-fatal):", pdfErr);
+    }
+
+    res.status(201).json({ data: { ...cotRecord, pdf_url: pdfUrl ?? null, items: insertedItems } });
   })
 );
 
@@ -196,7 +236,7 @@ cotizacionesRouter.patch(
   "/:id",
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const allowed = ["estado", "notas_cliente", "notas_internas", "forma_pago", "validez_dias", "aprobada_en", "rechazada_en", "motivo_rechazo"];
+    const allowed = ["estado", "notas_cliente", "notas_internas", "forma_pago", "validez_dias", "aprobada_en", "rechazada_en", "motivo_rechazo", "pdf_url"];
     const updates: Record<string, unknown> = {};
     for (const k of allowed) {
       if (req.body[k] !== undefined) updates[k] = req.body[k];

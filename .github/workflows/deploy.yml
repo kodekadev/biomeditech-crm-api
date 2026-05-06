@@ -49,7 +49,9 @@ jobs:
             --region $REGION \
             --allow-unauthenticated \
             --port 8080 \
+            --memory 1Gi \
             --set-env-vars="NODE_ENV=production,GCP_PROJECT_ID=jobs-425301,BIGQUERY_DATASET=CRM,BIGQUERY_LOCATION=us-central1" \
             --set-env-vars="CORS_ORIGIN=${FRONTEND_URL},ADMIN_EMAIL=${ADMIN_EMAIL}" \
+            --set-env-vars="GCS_BUCKET=biomeditech-cotizaciones" \
             --set-env-vars="JWT_SECRET=${JWT_SECRET}" \
             --set-env-vars="ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}"

@@ -11,6 +11,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().default("dev-secret-change-in-production"),
   ADMIN_EMAIL: z.string().default("admin@biomeditech.cl"),
   ADMIN_PASSWORD_HASH: z.string().optional(),
+  GCS_BUCKET: z.string().default("biomeditech-cotizaciones"),
 });
 
 export const env = envSchema.parse(process.env);
