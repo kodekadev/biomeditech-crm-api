@@ -200,6 +200,7 @@ export const tables: Record<ResourceName, TableConfig> = {
       "producto_id",
       "linea_numero",
       "descripcion",
+      "descripcion_larga",
       "tipo_servicio",
       "precio_unitario",
       "cantidad",
