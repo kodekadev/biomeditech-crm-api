@@ -118,7 +118,7 @@ export const tables: Record<ResourceName, TableConfig> = {
     fields: [
       ...common,
       "nombre",
-      "descripcion",
+      "descripcion_larga",
       "categoria",
       "subcategoria",
       "marca",
