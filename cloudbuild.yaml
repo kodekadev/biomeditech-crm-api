@@ -1,0 +1,43 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_IMAGE}
+      - .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_IMAGE}
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - --image
+      - ${_IMAGE}
+      - --region
+      - ${_REGION}
+      - --platform
+      - managed
+      - --allow-unauthenticated
+      - --service-account
+      - ${_SERVICE_ACCOUNT}
+      - --set-env-vars
+      - NODE_ENV=production,CORS_ORIGIN=${_CORS_ORIGIN},GCP_PROJECT_ID=${PROJECT_ID},BIGQUERY_DATASET=${_BIGQUERY_DATASET},BIGQUERY_LOCATION=${_BIGQUERY_LOCATION},LEADS_INGEST_TOKEN=${_LEADS_INGEST_TOKEN}
+
+images:
+  - ${_IMAGE}
+
+substitutions:
+  _REGION: us-central1
+  _SERVICE_NAME: biomeditech-crm-api
+  _IMAGE: us-central1-docker.pkg.dev/${PROJECT_ID}/biomeditech/biomeditech-crm-api:${SHORT_SHA}
+  _SERVICE_ACCOUNT: biomeditech-crm-api@${PROJECT_ID}.iam.gserviceaccount.com
+  _CORS_ORIGIN: https://biomeditech.cl
+  _BIGQUERY_DATASET: CRM
+  _BIGQUERY_LOCATION: us-central1
+  _LEADS_INGEST_TOKEN: change-me

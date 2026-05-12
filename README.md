@@ -120,3 +120,7 @@ curl "http://localhost:4000/api/cotizaciones?estado=aprobada&limit=20"
 - La API rellena `id`, `creado_en` y `_fecha_particion` cuando no vienen en el body.
 - En tablas con `actualizado_en`, los `PATCH` lo actualizan automaticamente.
 - Los nombres de tablas y columnas estan definidos en `src/config/tables.ts` para evitar interpolar recursos arbitrarios en SQL.
+
+## Deploy
+
+Ver `DEPLOY_CLOUD_RUN.md` para publicar la API en Cloud Run y entregar solo el endpoint de integracion al proveedor.
