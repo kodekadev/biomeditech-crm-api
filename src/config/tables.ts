@@ -115,7 +115,7 @@ export const tables: Record<ResourceName, TableConfig> = {
   },
   catalogo: {
     resource: "catalogo",
-    table: "catalogo",
+    table: "catalogo_servicios",
     idPrefix: "CAT",
     fields: [
       ...common,

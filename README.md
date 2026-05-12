@@ -57,7 +57,7 @@ Recursos disponibles:
 - `leads`
 - `clientes`
 - `productos`
-- `catalogo`
+- `catalogo` (tabla BigQuery `catalogo_servicios`)
 - `plantillas`
 - `cotizaciones`
 - `servicios-cotizacion`
