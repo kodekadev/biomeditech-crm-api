@@ -94,6 +94,8 @@ export const tables: Record<ResourceName, TableConfig> = {
       "precio_neto",
       "grupo",
       "texto_base_key",
+      "descripcion_larga",
+
       "activo"
     ],
     required: ["codigo", "categoria"],
