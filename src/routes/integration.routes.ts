@@ -29,6 +29,9 @@ const leadPayloadSchema = z
     mensaje: z.string().trim().optional(),
     rut: z.string().trim().optional(),
     direccion: z.string().trim().optional(),
+    region: z.string().trim().optional(),
+    tipo_entidad: z.string().trim().optional(),
+    requiere_visita_tecnica: z.string().trim().optional(),
     metadata: z.record(z.unknown()).optional()
   })
   .passthrough();
@@ -71,11 +74,13 @@ integrationRouter.post(
       throw new HttpError(500, "Recurso leads no configurado");
     }
 
-    const source = payload.origen ?? payload.source ?? "integracion";
+    const source = payload.origen ?? payload.source ?? "web";
     const notes = compactLines([
       payload.notas ?? payload.mensaje,
       payload.rut ? `RUT: ${payload.rut}` : undefined,
-      payload.direccion ? `Direccion: ${payload.direccion}` : undefined,
+      payload.direccion ? `Dirección: ${payload.direccion}` : undefined,
+      payload.region ? `Región: ${payload.region}` : undefined,
+      payload.requiere_visita_tecnica ? `Requiere visita técnica: ${payload.requiere_visita_tecnica}` : undefined,
       payload.metadata ? `Metadata: ${JSON.stringify(payload.metadata)}` : undefined
     ]);
 
@@ -85,11 +90,12 @@ integrationRouter.post(
       empresa: payload.empresa ?? payload.company ?? "",
       email: payload.email ?? "",
       telefono: payload.telefono ?? payload.tel ?? payload.phone ?? "",
-      canal: payload.canal ?? source,
+      canal: payload.canal ?? "web",
       estado: payload.estado ?? "nuevo",
       servicio_interes: payload.servicio_interes ?? payload.servicio ?? "",
       urgencia: payload.urgencia ?? "normal",
       notas: notes,
+      tipo_entidad: payload.tipo_entidad ?? "",
       gestionado_por: source
     });
 

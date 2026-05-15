@@ -42,7 +42,8 @@ export const tables: Record<ResourceName, TableConfig> = {
       "notas",
       "gestionado_por",
       "gestionado_en",
-      "cliente_id"
+      "cliente_id",
+      "tipo_entidad"
     ],
     required: ["nombre", "canal", "estado"],
     filters: ["estado", "canal", "urgencia", "servicio_interes", "gestionado_por", "cliente_id"],
@@ -71,6 +72,7 @@ export const tables: Record<ResourceName, TableConfig> = {
       "comuna",
       "direccion",
       "estado",
+      "tipo_entidad",
       "creado_por",
       "actualizado_en"
     ],
@@ -131,7 +133,7 @@ export const tables: Record<ResourceName, TableConfig> = {
       "activo",
       "actualizado_en"
     ],
-    required: ["codigo", "categoria"],
+    required: ["codigo", "categoria", "descripcion_larga"],
     filters: ["categoria", "grupo", "activo", "texto_base_key"],
     searchable: ["id", "codigo", "categoria", "servicio", "equipo", "grupo"],
     orderBy: "creado_en",

@@ -15,21 +15,25 @@ Content-Type: application/json
 Authorization: Bearer <LEADS_INGEST_TOKEN>
 ```
 
-Body ejemplo:
+Body — campos del formulario web:
 
 ```json
 {
   "nombre": "Juan Perez",
-  "empresa": "Clinica Central",
-  "telefono": "+56 9 1234 5678",
   "email": "juan@clinica.cl",
-  "canal": "wsp",
-  "servicio": "MP",
-  "urgencia": "normal",
-  "mensaje": "Solicita mantencion preventiva",
-  "origen": "proveedor-externo"
+  "telefono": "+56 9 1234 5678",
+  "empresa": "Clinica Central",
+  "rut": "76.123.456-7",
+  "region": "RM Región Metropolitana de Santiago",
+  "tipo_entidad": "Privada",
+  "servicio": "MP - Mantención Preventiva",
+  "requiere_visita_tecnica": "Si",
+  "mensaje": "Solicita mantención preventiva de monitor",
+  "origen": "formulario-web"
 }
 ```
+
+Campos obligatorios: solo `nombre`. El resto es opcional.
 
 ## Deploy con Cloud Build
 
