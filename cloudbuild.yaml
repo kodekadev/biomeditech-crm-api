@@ -3,13 +3,13 @@ steps:
     args:
       - build
       - -t
-      - ${_IMAGE}
+      - us-central1-docker.pkg.dev/$PROJECT_ID/biomeditech/biomeditech-crm-api:$BUILD_ID
       - .
 
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - ${_IMAGE}
+      - us-central1-docker.pkg.dev/$PROJECT_ID/biomeditech/biomeditech-crm-api:$BUILD_ID
 
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: gcloud
@@ -18,7 +18,7 @@ steps:
       - deploy
       - ${_SERVICE_NAME}
       - --image
-      - ${_IMAGE}
+      - us-central1-docker.pkg.dev/$PROJECT_ID/biomeditech/biomeditech-crm-api:$BUILD_ID
       - --region
       - ${_REGION}
       - --platform
@@ -27,16 +27,15 @@ steps:
       - --service-account
       - ${_SERVICE_ACCOUNT}
       - --set-env-vars
-      - NODE_ENV=production,CORS_ORIGIN=${_CORS_ORIGIN},GCP_PROJECT_ID=${PROJECT_ID},BIGQUERY_DATASET=${_BIGQUERY_DATASET},BIGQUERY_LOCATION=${_BIGQUERY_LOCATION},LEADS_INGEST_TOKEN=${_LEADS_INGEST_TOKEN}
+      - NODE_ENV=production,CORS_ORIGIN=${_CORS_ORIGIN},GCP_PROJECT_ID=$PROJECT_ID,BIGQUERY_DATASET=${_BIGQUERY_DATASET},BIGQUERY_LOCATION=${_BIGQUERY_LOCATION},LEADS_INGEST_TOKEN=${_LEADS_INGEST_TOKEN}
 
 images:
-  - ${_IMAGE}
+  - us-central1-docker.pkg.dev/$PROJECT_ID/biomeditech/biomeditech-crm-api:$BUILD_ID
 
 substitutions:
   _REGION: us-central1
   _SERVICE_NAME: biomeditech-crm-api
-  _IMAGE: us-central1-docker.pkg.dev/${PROJECT_ID}/biomeditech/biomeditech-crm-api:${SHORT_SHA}
-  _SERVICE_ACCOUNT: biomeditech-crm-api@${PROJECT_ID}.iam.gserviceaccount.com
+  _SERVICE_ACCOUNT: biomeditech-crm-api@jobs-425301.iam.gserviceaccount.com
   _CORS_ORIGIN: https://biomeditech.cl
   _BIGQUERY_DATASET: CRM
   _BIGQUERY_LOCATION: us-central1
