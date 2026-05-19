@@ -170,7 +170,9 @@ export class BigQueryRepository {
     `;
 
     await bigquery.query({ query: sql, params });
-    return this.getById(id);
+    // Return merged record directly — re-querying immediately risks stale data
+    // due to BigQuery eventual consistency after an UPDATE.
+    return { id, ...normalized };
   }
 
   async delete(id: string) {
