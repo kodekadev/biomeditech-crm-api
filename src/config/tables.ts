@@ -8,7 +8,8 @@ export type ResourceName =
   | "servicios-cotizacion"
   | "comunicaciones"
   | "usuarios"
-  | "actividad-dashboard";
+  | "actividad-dashboard"
+  | "protocolos-plantillas";
 
 export type TableConfig = {
   resource: ResourceName;
@@ -133,7 +134,7 @@ export const tables: Record<ResourceName, TableConfig> = {
       "activo",
       "actualizado_en"
     ],
-    required: ["codigo", "categoria", "descripcion_larga"],
+    required: ["codigo", "categoria"],
     filters: ["categoria", "grupo", "activo", "texto_base_key"],
     searchable: ["id", "codigo", "categoria", "servicio", "equipo", "grupo"],
     orderBy: "creado_en",
@@ -267,6 +268,23 @@ export const tables: Record<ResourceName, TableConfig> = {
     filters: ["tipo", "referencia_tipo", "referencia_id", "usuario_id"],
     searchable: ["titulo", "descripcion", "referencia_id"],
     orderBy: "creado_en"
+  },
+  "protocolos-plantillas": {
+    resource: "protocolos-plantillas",
+    table: "protocolos_plantillas",
+    idPrefix: "PP",
+    fields: [
+      ...common,
+      "label",
+      "items_json",
+      "conclusiones_json",
+      "actualizado_en"
+    ],
+    required: ["label"],
+    filters: [],
+    searchable: ["label"],
+    orderBy: "creado_en",
+    hasUpdatedAt: true
   }
 };
 
