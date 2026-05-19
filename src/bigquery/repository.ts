@@ -149,16 +149,21 @@ export class BigQueryRepository {
     delete record.creado_en;
     delete record._fecha_particion;
 
+    if (Object.keys(record).length === 0) {
+      throw new HttpError(400, "No hay campos validos para actualizar");
+    }
+
+    const existing = await this.getById(id);
+    if (!existing) {
+      throw new HttpError(404, "Registro no encontrado");
+    }
+
     if (this.config.hasUpdatedAt) {
       record.actualizado_en = nowIso();
     }
 
     const normalized = normalizeRecord(record);
     const entries = Object.entries(normalized);
-    if (entries.length === 0) {
-      throw new HttpError(400, "No hay campos validos para actualizar");
-    }
-
     const setClause = entries.map(([field]) => `${field} = @${field}`).join(", ");
     const params = Object.fromEntries(entries) as QueryParams;
     params.id = id;
@@ -174,6 +179,11 @@ export class BigQueryRepository {
   }
 
   async delete(id: string) {
+    const existing = await this.getById(id);
+    if (!existing) {
+      throw new HttpError(404, "Registro no encontrado");
+    }
+
     const sql = `
       DELETE FROM ${tableRef(this.config.table)}
       WHERE id = @id

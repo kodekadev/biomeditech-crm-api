@@ -142,7 +142,7 @@ export const tables: Record<ResourceName, TableConfig> = {
     ],
     required: ["nombre", "activo"],
     filters: ["categoria", "subcategoria", "marca", "activo", "creado_por"],
-    searchable: ["id", "nombre", "descripcion", "marca", "modelo", "categoria"],
+    searchable: ["id", "nombre", "descripcion_larga", "marca", "modelo", "categoria"],
     orderBy: "creado_en",
     hasUpdatedAt: true
   },
