@@ -129,7 +129,7 @@ export class BigQueryRepository {
     validateRequired(this.config, record);
     const normalized = normalizeRecord(record);
 
-    const entries = Object.entries(normalized);
+    const entries = Object.entries(normalized).filter(([, v]) => v !== "" && v !== null && v !== undefined);
     const columns = entries.map(([field]) => field).join(", ");
     const values = entries.map(([field]) => `@${field}`).join(", ");
     const params = Object.fromEntries(entries) as QueryParams;
@@ -163,7 +163,7 @@ export class BigQueryRepository {
     }
 
     const normalized = normalizeRecord(record);
-    const entries = Object.entries(normalized);
+    const entries = Object.entries(normalized).filter(([, v]) => v !== "" && v !== null && v !== undefined);
     const setClause = entries.map(([field]) => `${field} = @${field}`).join(", ");
     const params = Object.fromEntries(entries) as QueryParams;
     params.id = id;
