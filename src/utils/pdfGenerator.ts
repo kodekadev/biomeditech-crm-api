@@ -78,7 +78,9 @@ function buildHtml(cot: PdfCotizacion, cliente: PdfCliente): string {
     table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
     thead th { background: #0f172a; color: #fff; padding: 9px 12px; text-align: left; font-size: 12px; }
     td { padding: 7px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-    .desc-larga { color: #64748b; font-size: 12px; white-space: pre-line; padding: 4px 12px 12px; }
+    tr { break-inside: avoid; page-break-inside: avoid; }
+    .desc-larga { color: #64748b; font-size: 12px; white-space: pre-line; padding: 4px 12px 12px;
+                  break-inside: avoid; page-break-inside: avoid; }
     .totals { width: 320px; margin-left: auto; margin-bottom: 16px; }
     .totals td { padding: 5px 12px; }
     .totals tr:last-child td { font-weight: 700; font-size: 15px; border-top: 2px solid #0f172a; }
