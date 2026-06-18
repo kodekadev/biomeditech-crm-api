@@ -306,7 +306,8 @@ export const tables: Record<ResourceName, TableConfig> = {
       "anio",
       "servicio",
       "observaciones",
-      "fecha"
+      "fecha",
+      "datos_json"
     ],
     required: ["correlativo", "plantilla_label", "fecha"],
     filters: ["cliente_id", "plantilla_id"],
