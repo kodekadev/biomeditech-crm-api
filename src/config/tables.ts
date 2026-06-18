@@ -9,7 +9,9 @@ export type ResourceName =
   | "comunicaciones"
   | "usuarios"
   | "actividad-dashboard"
-  | "protocolos-plantillas";
+  | "protocolos-plantillas"
+  | "protocolos-historial"
+  | "configuracion";
 
 export type TableConfig = {
   resource: ResourceName;
@@ -142,7 +144,7 @@ export const tables: Record<ResourceName, TableConfig> = {
   },
   plantillas: {
     resource: "plantillas",
-    table: "plantillas",
+    table: "plantillas_descripcion",
     idPrefix: "TPL",
     fields: [
       ...common,
@@ -284,6 +286,42 @@ export const tables: Record<ResourceName, TableConfig> = {
     filters: [],
     searchable: ["label"],
     orderBy: "creado_en",
+    hasUpdatedAt: true
+  },
+  "protocolos-historial": {
+    resource: "protocolos-historial",
+    table: "protocolos_historial",
+    idPrefix: "PH",
+    fields: [
+      ...common,
+      "correlativo",
+      "plantilla_id",
+      "plantilla_label",
+      "cliente_id",
+      "cliente_nombre",
+      "tecnico",
+      "marca",
+      "modelo",
+      "serie",
+      "anio",
+      "servicio",
+      "observaciones",
+      "fecha"
+    ],
+    required: ["correlativo", "plantilla_label", "fecha"],
+    filters: ["cliente_id", "plantilla_id"],
+    searchable: ["correlativo", "plantilla_label", "cliente_nombre", "tecnico", "marca", "modelo", "serie"],
+    orderBy: "creado_en"
+  },
+  configuracion: {
+    resource: "configuracion",
+    table: "configuracion",
+    idPrefix: "CFG",
+    fields: ["id", "equip_cats", "svc_types", "cat_svc_map", "condiciones", "actualizado_en", "_fecha_particion"],
+    required: ["id"],
+    filters: [],
+    searchable: [],
+    orderBy: "actualizado_en",
     hasUpdatedAt: true
   }
 };
