@@ -58,6 +58,8 @@ const compactLines = (lines: Array<string | undefined>) => {
   return lines.filter((line): line is string => Boolean(line && line.trim())).join("\n");
 };
 
+const normalizeRut = (rut: string) => rut.replace(/[\s.]/g, "").toLowerCase();
+
 integrationRouter.post(
   "/leads",
   asyncHandler(async (req, res) => {
@@ -69,12 +71,15 @@ integrationRouter.post(
       throw new HttpError(400, "El campo nombre es requerido");
     }
 
-    const config = getTableConfig("leads");
-    if (!config) {
-      throw new HttpError(500, "Recurso leads no configurado");
-    }
+    const leadsConfig = getTableConfig("leads");
+    if (!leadsConfig) throw new HttpError(500, "Recurso leads no configurado");
+    const clientesConfig = getTableConfig("clientes");
+    if (!clientesConfig) throw new HttpError(500, "Recurso clientes no configurado");
 
     const source = payload.origen ?? payload.source ?? "web";
+    const empresa = payload.empresa ?? payload.company ?? "";
+    const telefono = payload.telefono ?? payload.tel ?? payload.phone ?? "";
+
     const notes = compactLines([
       payload.notas ?? payload.mensaje,
       payload.rut ? `RUT: ${payload.rut}` : undefined,
@@ -84,21 +89,68 @@ integrationRouter.post(
       payload.metadata ? `Metadata: ${JSON.stringify(payload.metadata)}` : undefined
     ]);
 
-    const repository = new BigQueryRepository(config);
-    const row = await repository.create({
+    const leadsRepo = new BigQueryRepository(leadsConfig);
+    const clientesRepo = new BigQueryRepository(clientesConfig);
+
+    // 1. Buscar cliente existente por RUT exacto
+    let clienteId: string | undefined;
+    let clienteAccion: "vinculado" | "creado" | "sin_cliente" = "sin_cliente";
+
+    if (payload.rut) {
+      const candidates = await clientesRepo.list({ search: payload.rut, limit: 10 });
+      const match = candidates.find(
+        (c) => normalizeRut(String(c.rut ?? "")) === normalizeRut(payload.rut!)
+      );
+      if (match) {
+        clienteId = String(match.id);
+        clienteAccion = "vinculado";
+      }
+    }
+
+    // 2. Si no se encontró cliente y hay suficientes datos, crear uno nuevo
+    if (!clienteId && empresa) {
+      const nuevoCliente = await clientesRepo.create({
+        nombre_empresa: empresa,
+        contacto_nombre: nombre,
+        email: payload.email ?? "",
+        telefono,
+        rut: payload.rut ?? "",
+        region: payload.region ?? "",
+        direccion: payload.direccion ?? "",
+        tipo_entidad: payload.tipo_entidad ?? "",
+        estado: "Activo",
+        creado_por: source,
+      });
+      clienteId = String(nuevoCliente.id);
+      clienteAccion = "creado";
+    }
+
+    // 3. Crear el lead incluyendo cliente_id si corresponde
+    const leadData: Record<string, unknown> = {
       nombre,
-      empresa: payload.empresa ?? payload.company ?? "",
+      empresa,
       email: payload.email ?? "",
-      telefono: payload.telefono ?? payload.tel ?? payload.phone ?? "",
+      telefono,
       canal: payload.canal ?? "web",
       estado: payload.estado ?? "nuevo",
       servicio_interes: payload.servicio_interes ?? payload.servicio ?? "",
       urgencia: payload.urgencia ?? "normal",
       notas: notes,
       tipo_entidad: payload.tipo_entidad ?? "",
-      gestionado_por: source
-    });
+      gestionado_por: source,
+    };
+    if (clienteId) leadData.cliente_id = clienteId;
 
-    res.status(201).json({ data: row });
+    const lead = await leadsRepo.create(leadData);
+
+    // 4. Si el cliente fue recién creado, actualizar su lead_id
+    if (clienteAccion === "creado" && clienteId) {
+      await clientesRepo.update(clienteId, { lead_id: String(lead.id) });
+    }
+
+    res.status(201).json({
+      data: lead,
+      cliente: { accion: clienteAccion, id: clienteId ?? null },
+    });
   })
 );
