@@ -96,30 +96,27 @@ setupRouter.post(
     const ok = await createTableIfMissing("simuladores", SIMULADORES_SCHEMA, results);
     if (!ok) { res.json({ ok: false, results }); return; }
 
-    // Check if already seeded
-    const [rows] = await bigquery.query({
-      query: `SELECT COUNT(*) AS cnt FROM \`${projectId}.${datasetId}.simuladores\``,
-    });
-    const cnt = Number((rows as { cnt: { value: string } | number }[])[0]?.cnt ?? 0);
-    const cntNum = typeof cnt === "object" ? Number((cnt as { value: string }).value) : cnt;
-
-    if (cntNum > 0) {
-      results.push({ step: "seed", ok: true, msg: `ya tenía ${cntNum} simuladores, seed omitido` });
-      res.json({ ok: true, results });
-      return;
-    }
+    // Fetch existing names to avoid duplicates (idempotent per nombre)
+    let existingNames = new Set<string>();
+    try {
+      const [existing] = await bigquery.query({
+        query: `SELECT nombre FROM \`${projectId}.${datasetId}.simuladores\``,
+      });
+      existingNames = new Set((existing as { nombre: string }[]).map((r) => r.nombre.toLowerCase()));
+    } catch { /* tabla recién creada, sin filas aún */ }
 
     const repo = new BigQueryRepository(getTableConfig("simuladores")!);
     let seeded = 0;
     for (const item of SEED_SIMULADORES) {
+      if (existingNames.has(item.nombre.toLowerCase())) continue;
       try {
         await repo.create({ ...item, activo: true });
         seeded++;
       } catch (e: unknown) {
-        results.push({ step: "seed", ok: false, msg: String(e) });
+        results.push({ step: "seed", ok: false, msg: `${item.nombre}: ${String(e)}` });
       }
     }
-    results.push({ step: "seed", ok: true, msg: `${seeded} simuladores insertados` });
+    results.push({ step: "seed", ok: true, msg: seeded > 0 ? `${seeded} simuladores insertados` : "todos los simuladores ya existian" });
 
     res.json({ ok: true, results });
   })
