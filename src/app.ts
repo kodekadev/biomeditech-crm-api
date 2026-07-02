@@ -7,6 +7,7 @@ import { authRouter } from "./routes/auth.routes.js";
 import { cotizacionesRouter } from "./routes/cotizaciones.routes.js";
 import { dashboardRouter } from "./routes/dashboard.routes.js";
 import { resourceRouter } from "./routes/resource.routes.js";
+import { setupRouter } from "./routes/setup.routes.js";
 import { errorHandler, notFoundHandler } from "./http/errors.js";
 
 export const createApp = () => {
@@ -29,6 +30,7 @@ export const createApp = () => {
   app.use("/api/auth", authRouter);
   app.use("/api/dashboard", requireAuth, dashboardRouter);
   app.use("/api/cotizaciones", requireAuth, cotizacionesRouter);
+  app.use("/api/setup", requireAuth, setupRouter);
   app.use("/api", requireAuth, resourceRouter);
 
   app.use(notFoundHandler);

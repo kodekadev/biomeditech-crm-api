@@ -8,7 +8,10 @@ export type ResourceName =
   | "servicios-cotizacion"
   | "comunicaciones"
   | "usuarios"
-  | "actividad-dashboard";
+  | "actividad-dashboard"
+  | "simuladores"
+  | "protocolos-plantillas"
+  | "protocolos-historial";
 
 export type TableConfig = {
   resource: ResourceName;
@@ -257,6 +260,53 @@ export const tables: Record<ResourceName, TableConfig> = {
     required: ["tipo", "titulo"],
     filters: ["tipo", "referencia_tipo", "referencia_id", "usuario_id"],
     searchable: ["titulo", "descripcion", "referencia_id"],
+    orderBy: "creado_en"
+  },
+  simuladores: {
+    resource: "simuladores",
+    table: "simuladores",
+    idPrefix: "SIM",
+    fields: [...common, "nombre", "marca", "modelo", "serie", "activo", "actualizado_en"],
+    required: ["nombre"],
+    filters: ["activo"],
+    searchable: ["nombre", "marca", "modelo", "serie"],
+    orderBy: "nombre",
+    hasUpdatedAt: true
+  },
+  "protocolos-plantillas": {
+    resource: "protocolos-plantillas",
+    table: "protocolos_plantillas",
+    idPrefix: "PP",
+    fields: [...common, "label", "items_json", "conclusiones_json"],
+    required: ["label"],
+    filters: [],
+    searchable: ["label"],
+    orderBy: "creado_en"
+  },
+  "protocolos-historial": {
+    resource: "protocolos-historial",
+    table: "protocolos_historial",
+    idPrefix: "PH",
+    fields: [
+      ...common,
+      "correlativo",
+      "plantilla_id",
+      "plantilla_label",
+      "cliente_id",
+      "cliente_nombre",
+      "tecnico",
+      "marca",
+      "modelo",
+      "serie",
+      "anio",
+      "servicio",
+      "observaciones",
+      "fecha",
+      "datos_json"
+    ],
+    required: ["correlativo", "plantilla_id"],
+    filters: ["plantilla_id", "cliente_id", "tecnico"],
+    searchable: ["correlativo", "plantilla_label", "cliente_nombre", "tecnico", "marca", "modelo"],
     orderBy: "creado_en"
   }
 };
