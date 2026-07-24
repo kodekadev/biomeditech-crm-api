@@ -11,7 +11,8 @@ export type ResourceName =
   | "actividad-dashboard"
   | "protocolos-plantillas"
   | "protocolos-historial"
-  | "configuracion";
+  | "configuracion"
+  | "simuladores";
 
 export type TableConfig = {
   resource: ResourceName;
@@ -323,6 +324,17 @@ export const tables: Record<ResourceName, TableConfig> = {
     filters: [],
     searchable: [],
     orderBy: "actualizado_en",
+    hasUpdatedAt: true
+  },
+  simuladores: {
+    resource: "simuladores",
+    table: "simuladores",
+    idPrefix: "SIM",
+    fields: [...common, "nombre", "marca", "modelo", "serie", "activo", "actualizado_en"],
+    required: ["nombre"],
+    filters: ["activo"],
+    searchable: ["nombre", "marca", "modelo", "serie"],
+    orderBy: "creado_en",
     hasUpdatedAt: true
   }
 };
