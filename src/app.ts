@@ -5,7 +5,6 @@ import { env } from "./config/env.js";
 import { dashboardRouter } from "./routes/dashboard.routes.js";
 import { integrationRouter } from "./routes/integration.routes.js";
 import { resourceRouter } from "./routes/resource.routes.js";
-import { setupRouter } from "./routes/setup.routes.js";
 import { errorHandler, notFoundHandler } from "./http/errors.js";
 
 export const createApp = () => {
@@ -29,7 +28,6 @@ export const createApp = () => {
 
   app.use("/api/dashboard", dashboardRouter);
   app.use("/api/integrations", integrationRouter);
-  app.use("/api/setup", setupRouter);
   app.use("/api", resourceRouter);
 
   app.use(notFoundHandler);
