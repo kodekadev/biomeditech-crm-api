@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { ZodError } from "zod";
 
 export class HttpError extends Error {
   constructor(
@@ -25,6 +26,13 @@ export const errorHandler = (error: unknown, _req: Request, res: Response, _next
     return res.status(error.status).json({
       error: error.message,
       details: error.details
+    });
+  }
+
+  if (error instanceof ZodError) {
+    return res.status(400).json({
+      error: "Datos invalidos",
+      details: error.issues
     });
   }
 

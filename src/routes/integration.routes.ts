@@ -9,9 +9,9 @@ export const integrationRouter = Router();
 
 const leadPayloadSchema = z
   .object({
-    nombre: z.string().trim().min(1).optional(),
-    contacto_nombre: z.string().trim().min(1).optional(),
-    name: z.string().trim().min(1).optional(),
+    nombre: z.string().trim().optional().or(z.literal("")),
+    contacto_nombre: z.string().trim().optional().or(z.literal("")),
+    name: z.string().trim().optional().or(z.literal("")),
     empresa: z.string().trim().optional(),
     company: z.string().trim().optional(),
     email: z.string().trim().email().optional().or(z.literal("")),
@@ -66,7 +66,10 @@ integrationRouter.post(
     requireLeadIngestToken(req.headers.authorization, req.headers["x-api-key"]);
 
     const payload = leadPayloadSchema.parse(req.body);
-    const nombre = payload.nombre ?? payload.contacto_nombre ?? payload.name;
+    // || y no ??: WordPress a veces manda varios alias de nombre a la vez y
+    // deja los que no uso como "" en vez de omitirlos -- con ?? un "" en el
+    // primer alias ganaba y descartaba un valor real en los siguientes.
+    const nombre = payload.nombre || payload.contacto_nombre || payload.name;
     if (!nombre) {
       throw new HttpError(400, "El campo nombre es requerido");
     }
